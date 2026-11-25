@@ -27,7 +27,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'patrol_node = patrol_pkg.patrol_node:main'
+            'patrol_node = patrol_pkg.patrol_node:main',
+            'vision_node = patrol_pkg.vision_node:main'
         ],
     },
 )
