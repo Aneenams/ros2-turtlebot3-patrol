@@ -28,7 +28,8 @@ class VisionNode(Node):
             Image, '/camera/image_raw', self.image_callback, 10
         )
         self.pub = self.create_publisher(Bool, '/target_detected', 10)
-        self.get_logger().info('YOLOv8 Vision Node ready.')
+        self.debug_pub = self.create_publisher(Image, '/vision_debug/image', 10)
+        self.get_logger().info('YOLOv8 Vision Node ready (publishing /vision_debug/image).')
 
     def image_callback(self, msg):
         self.frame_count += 1
@@ -50,6 +51,12 @@ class VisionNode(Node):
                 if cls_name == self.target_class and conf >= self.conf_thresh:
                     found = True
                     best_conf = max(best_conf, conf)
+
+        # Publish annotated frame with bounding boxes for RViz2
+        annotated_frame = results[0].plot()
+        debug_msg = self.bridge.cv2_to_imgmsg(annotated_frame, encoding='bgr8')
+        debug_msg.header = msg.header
+        self.debug_pub.publish(debug_msg)
 
         out = Bool()
         out.data = found
